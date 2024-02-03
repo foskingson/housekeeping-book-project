@@ -1,9 +1,26 @@
 # 지갑 톡톡 (가계부 웹) :blue_book:
 ![지갑 톡톡 홈 화면](./img/지갑%20톡톡.png)
 
+<br>
+
 ## 기능
 - 달력
-- 각각의 날짜에 대한 금액 표시 및 관리
+- 각각의 날짜에 대한 금액 표시 및 관리 (카드지출과 현금지출 분리)
+- 총 금액 표시
+<br>
+
+## Development Environment
+- 프론트엔드
+<img src="https://img.shields.io/badge/html5-E34F26?style=for-the-badge&logo=html5&logoColor=white">
+<img src="https://img.shields.io/badge/css-1572B6?style=for-the-badge&logo=css3&logoColor=white">
+<img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
+- 백엔드
+<img src="https://img.shields.io/badge/node.js-339933?style=for-the-badge&logo=Node.js&logoColor=white">
+<img src="https://img.shields.io/badge/express-000000?style=for-the-badge&logo=express&logoColor=white">
+<img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
+<br>
+
+## 어려웠던 점(그걸 통해 배운점)
 
 ### 서버파일과 클라이언트파일의 연결
 - 원래는 lib폴더안에 template.js를 만들어 함수로 클라이언트파일을 만들었는데 그렇게 하다보니 서버측에서 클라이언트로 동적 데이터를 넘길때 불편한 경우가 많았다.
@@ -40,3 +57,7 @@ fetch가 클라이언트에서 서버로 데이터를 요청하는거라면 웹�
 현재달이 아닌쪽에서 create를 했을때 리다이렉트를 create를 한 달로 리다이렉트하기
 ex: 현재달 : 2024년 1월 , create한 달 : 2024년 2월 => create를 했을때 1월로 돌아가지 않고 2월로 리다이렉트
 세션을 추가햇지만 아직 해결 안됨   2월로 돌아가는것까지는 성공 다만 데이터가 1월것이 뜨므로 서버쪽 수정 필요
+
+
+### 만들어본 후기
+- nodejs를 간단하게 배우고 뭐라도 만들고 싶은 생각에 만들게 되었다. 처음으로 만들어본 개인 프로젝트이기도 하고 개발하기전 기본적인 설계에 대한 이론적인 개념을 모른 상태에서 하나의 어플리케이션을 만들어본다는것과 기능이 동작하고 오류가 안나는것에만 집중해 코드가 정리가 안되어있고 난잡하다. 모르는 부분은 검색을 해보거나 chatgpt를 통해 찾아보면서 만들었다. 다음에 프로젝트를 하게되면 데이터베이스 구조부터 mvc패턴 등 다양한 설계에 대한 이론을 공부하고 제대로 정리된 코드를 만들어 볼 것이다.
