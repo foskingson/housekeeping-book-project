@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+        <html lang="ko">
+
+    
+        <head>
+            <meta charset="UTF-8">
+            
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+
+                h1 {
+                    font-family: 'Arial', sans-serif;
+                    font-size: 2em;
+                    color: #3498db; /* Choose your preferred text color */
+                    text-align: center;
+                    border: 2px solid #3498db; /* Optional border */
+                    padding: 5px 10px; /* Optional padding */
+                    border-radius: 10px; /* Optional border-radius for rounded corners */
+                    background-color: #ecf0f1; /* Optional background color */
+                }
+                #month-year {
+                    font-family: 'Arial', sans-serif;
+                    font-size: 1.5em;
+                    color: #26962e; /* Choose your preferred text color */
+                    display: inline-block;
+                    padding: 5px 10px; /* Adjust padding as needed */
+                    margin: 0px;
+                    border-radius: 5px; /* Optional border-radius for rounded corners */
+                    background-color: #ecf0f1; /* Optional background color */
+                }
+                #total {
+                    font-family: 'Arial', sans-serif;
+                    font-size: 1.8em;
+                    color: #26962e; /* Choose your preferred text color */
+                    display: inline-block;
+                    padding: 5px 10px; /* Adjust padding as needed */
+                    margin: 0;
+                    margin-left: 450px;
+                    border-radius: 5px; /* Optional border-radius for rounded corners */
+                    background-color: #ecf0f1; /* Optional background color */
+                }
+                        
+                        
+                
+                body {
+                    font-family: Arial, sans-serif;
+                }   
+
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 20px;
+                }
+
+                th,
+                td {
+                    border: 1px solid #dddddd;
+                    text-align: center;
+                    padding: 8px;
+                }
+
+                th {
+                    background-color: #f2f2f2;
+                }
+
+                button {
+                    margin-top: 10px;
+                    cursor: pointer;
+                }
+            </style>
+            
+            <title>지갑 톡톡</title>
+
+            
+        </head>
+
+        <body>
+            <h1>지갑 톡톡</h1>
+            <!-- 월 및 년도를 표시하는 헤더 -->
+            <h2 id="month-year"></h2>
+            <h2 id="total"></h2>
+            <br>
+            <!-- 이전 달, 다음 달로 이동할 수 있는 버튼 -->
+            <button onclick="prevMonth()">이전 달</button>
+            <button onclick="nextMonth()">다음 달</button>
+
+            <!-- 달력을 표시하는 테이블 -->
+            <table id="calendar">
+                <thead>
+                    <!-- 일요일부터 토요일까지의 요일을 표시하는 행 -->
+                    <tr>
+                        <th>일</th>
+                        <th>월</th>
+                        <th>화</th>
+                        <th>수</th>
+                        <th>목</th>
+                        <th>금</th>
+                        <th>토</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 달력 날짜가 동적으로 삽입될 자리 -->
+                </tbody>
+            </table>
+
+            <!-- JavaScript 코드 -->
+            <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+            <script>
+            const socket = io();    // 웹소켓 서버에 연결합니다
+
+            
+            socket.on('updateData', (updatedData) => {
+                 // 업데이트된 데이터로 클라이언트 측 렌더링 로직을 업데이트합니다
+                 // 예를 들어, DOM을 업데이트하거나 다시 렌더링할 함수를 호출할 수 있습니다
+                console.log('Updated data received:', updatedData);
+                
+                generateCalendar(updatedData.year,updatedData.month,updatedData.money,updatedData.Cash,updatedData.Card);
+            })
+
+            var money = <%- JSON.stringify(data) %>
+            
+            var yearMonth=<%- JSON.stringify(yearMonth) %>
+            var totalCard = <%- JSON.stringify(totalCard) %>;
+            var totalCash = <%- JSON.stringify(totalCash) %>;
+            
+   
+            function generateCalendar(year, month,updateData,updateTotalCash,updateTotalCard) {
+               
+                const calendarTable = document.getElementById('calendar');
+      
+                const monthYearHeader = document.getElementById('month-year');
+               
+                const calendarBody = calendarTable.querySelector('tbody');
+             
+                
+                const total = document.getElementById('total');
+
+
+                if(updateTotalCard===undefined){
+                    total.textContent= `총 지출 현금금액: ${totalCash} / 총 지출 카드금액: ${totalCard} / 총 금액 : ${totalCash+totalCard} `
+                }else{
+                    total.textContent= `총 지출 현금금액: ${updateTotalCash} / 총 지출 카드금액: ${updateTotalCard} / 총 금액 : ${updateTotalCash+updateTotalCard} `
+                }
+                
+                
+                // 이전 내용을 지우기
+                calendarBody.innerHTML = '';
+
+                // 헤더에 월과 년도 설정
+                monthYearHeader.textContent = month+1 + '월 ' + year + '년';
+
+
+                // 해당 월의 첫 날과 마지막 날을 가져옴
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);   //날짜부분 매개변수를 0으로 주면 이전달 마지막날 날짜로 생성
+                const totalDays = lastDay.getDate();
+                
+                var count=0;
+                // 해당 월의 각 날짜에 대한 Date 객체 생성
+                for (let day = 1; day <= totalDays; day++) {
+                    
+                    const date = new Date(year, month, day,12);
+                    const dayOfWeek = date.getDay(); // 0 (일요일)부터 6 (토요일)
+                
+                    
+                    
+
+                    // 주마다 새로운 행 생성
+                    if (day === 1 || dayOfWeek === 0) {
+                        var row = calendarBody.insertRow();
+                        count++;
+                        
+                    }
+
+                    // 각 날짜에 대한 셀 생성
+                    if(count===1 && day===1){
+                        if(dayOfWeek!==0){
+                            var i=0
+                            while(i<dayOfWeek){
+                                const cell = row.insertCell();
+                                cell.textContent = '';
+                                i=i+1;
+                            }}
+                    }
+
+                  
+
+                    const cell = row.insertCell();
+                    
+                    if(updateData===undefined){
+                        cell.innerHTML = `<a href="/create/${yearMonth}-${day}">${day}</a>
+                        <br><h4 style="color:blue">지출한 현금금액 : ${money[day-1].cash}</h4><h4>지출한 카드금액 : ${money[day-1].card}</h4><h4>총 금액 : ${money[day-1].cash+money[day-1].card}</h4>`  
+                        //textContent는 링크가 생성되지 않는다 할거면 innerHTML을 사용해야한다
+                    }else{
+                        cell.innerHTML = `<a href="/create/${year}${month+1}-${day}">${day}</a>
+                        <br><h4 style="color:blue">지출한 현금금액 : ${updateData[day-1].cash}</h4><h4>지출한 카드금액 : ${updateData[day-1].card}</h4><h4>총 금액 : ${updateData[day-1].cash+updateData[day-1].card}</h4>`  
+                }
+
+            }
+            }
+
+            // 월 이름을 가져오는 함수
+            function getMonthName(month) {
+                const monthNames = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+                return monthNames[month];
+            }
+
+           
+
+
+            function getNextMonth(year, month) {
+                if (month === 11) {
+                    return { year: year + 1, month: 0 };
+                } else {
+                    return { year, month: month + 1 };
+                }
+            }
+
+            function getPreviousMonth(year, month) {    
+                if (month === 0) {
+                    return { year: year - 1, month: 11 };
+                } else {
+                    return { year, month: month - 1 };
+                }
+            }
+
+            function sendDataToServer(year, month) {
+                const data = {
+                    currentYear: year,
+                    currentMonth: month
+                };
+
+                fetch('/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                })
+                .then(response => response.json())
+                .then(serverResponse => {
+                    // Handle the server's response if needed
+                    console.log('Server response:', serverResponse);
+                    //window.location.href = `/?updatedYear=${year}&updatedMonth=${month}`;
+                    window.history.pushState("", "", '/');
+                    //새로 고침, 다음 달, 이전 달과 같은 버튼을 사용하여 URL 매개변수를 변경하면 URL이 수정되고, 페이지를 새로 고치거나 링크를 클릭하면 브라우저는 주소 표시줄에 지정된 URL을 로드하려고 시도합니다.
+                })
+                .catch(error => {
+                    // Handle errors
+                    console.error('Error:', error);
+                });
+
+                
+            }
+
+            // 이전 달로 이동하는 함수
+            function prevMonth() {
+                window.history.pushState("", "", '/');
+                const previousMonth = getPreviousMonth(currentYear, currentMonth);
+                currentYear = previousMonth.year;
+                currentMonth = previousMonth.month;
+
+                // Send currentYear and currentMonth to the server
+                sendDataToServer(currentYear, currentMonth);
+
+                // Continue with generating the calendar and creating the table
+                generateCalendar(currentYear, currentMonth);
+                
+            }
+
+            // 다음 달로 이동하는 함수
+            function nextMonth() {
+                window.history.pushState("", "", '/');
+                const nextMonth = getNextMonth(currentYear, currentMonth);
+                currentYear = nextMonth.year;
+                currentMonth = nextMonth.month;
+                sendDataToServer(currentYear, currentMonth);
+                generateCalendar(currentYear, currentMonth);
+               
+            }
+
+
+            function getQueryParameters() {
+                const queryParams = new URLSearchParams(window.location.search);
+                return {
+                    updatedYear: queryParams.get('updatedYear'),
+                    updatedMonth: queryParams.get('updatedMonth'),
+                };
+            }
+
+            // 현재 날짜를 기준으로 초기화
+            const currentDate = new Date();
+            let currentYear = currentDate.getFullYear();
+            let currentMonth = currentDate.getMonth();
+            queryParameters=getQueryParameters()
+            currentYear = queryParameters.updatedYear || currentYear;
+            currentMonth= updatedMonth = parseInt(queryParameters.updatedMonth,10)-1|| currentMonth
+            
+            generateCalendar(currentYear, currentMonth);
+           
+            
+
+
+
+        </script>
+            
+            
+        </body>
+
+        </html>
